@@ -4,7 +4,7 @@ const _ = require('lodash')
 const plugins = require('../plugins')
 
 module.exports = (req, res, next) => {
-  const schema = req.config
+  const schema = req.context.config
 
   // currently only exact match is supported
   const matchingCondition = _.find(schema, (r) => {

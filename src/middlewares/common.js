@@ -12,6 +12,9 @@ Location /about
 
 Location /pricing
   Rewrite /index.html 201
+
+NotFound
+  Respond "Hello there! The page you're looking doesn't exist" 404
 `
 
 const commonMiddleware = (req, res, next) => {
