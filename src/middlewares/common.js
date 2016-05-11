@@ -15,6 +15,9 @@ Location /pricing
 
 NotFound
   Respond "Hello there! The page you're looking doesn't exist" 404
+
+Location /users/*
+  Respond "Users by id"
 `
 
 const commonMiddleware = (req, res, next) => {
@@ -33,7 +36,8 @@ const commonMiddleware = (req, res, next) => {
   req.context = {
     address,
     path,
-    config: parser(configRaw)
+    config: parser(configRaw),
+    vars: {}
   }
 
   if ( address === "getforge.io" ) {
