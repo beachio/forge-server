@@ -1,0 +1,17 @@
+{
+  "name": "forge-proxy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.4",
+    "knox": "^0.9.2",
+    "lodash": "^4.11.2",
+    "rimraf": "^2.5.2"
+  }
+}
