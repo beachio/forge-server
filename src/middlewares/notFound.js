@@ -1,7 +1,7 @@
 const path = require('path')
 const fs   = require('fs')
 
-const { performRewrite } = require('./s3Middleware')
+const { performRewrite } = require('./static')
 
 errorPageContent = fs.readFileSync(path.resolve(__dirname, '../assets/404.html'))
 

@@ -1,6 +1,6 @@
 let api = require('./index')
 
-const { performRewrite } = require('../middlewares/s3Middleware')
+const { performRewrite } = require('../middlewares/static')
 
 api.registerRule('Rewrite', (args, req, res, next) => {
   const location = args[0]

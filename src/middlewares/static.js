@@ -1,5 +1,6 @@
-const config = require('../env')
-const knox   = require('knox')
+const { config } = require('../env')
+const knox       = require('knox')
+
 
 const s3 = knox.createClient({
   key:    config.key,
@@ -9,9 +10,7 @@ const s3 = knox.createClient({
 })
 
 const middleware = (req, res, next) => {
-  const forge = req.forge
-
-  let filename = forge.path
+  let filename = req.context.path
 
   if(filename.slice(-1) == '/') {
     filename += 'index.html'
@@ -35,7 +34,7 @@ const middleware = (req, res, next) => {
 
   // path = address + filename
 
-  const filepath = `${forge.address}${filename}`
+  const filepath = `${req.context.address}${filename}`
 
 
   // For pages only! Serving them directly
@@ -44,7 +43,7 @@ const middleware = (req, res, next) => {
       return next()
     }
 
-    statusCode = req.forge.overwriteStatus || response.statusCode
+    statusCode = req.context.overwriteStatus || response.statusCode
 
     res.writeHead(statusCode, {
       'content-type': response.headers['content-type']
@@ -58,8 +57,8 @@ const middleware = (req, res, next) => {
 module.exports = middleware
 
 module.exports.performRewrite = (req, res, next, path, status) => {
-  req.forge.path = path
-  req.forge.overwriteStatus = status
+  req.context.path            = path
+  req.context.overwriteStatus = status
 
   middleware(req, res, next)
 }

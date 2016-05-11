@@ -3,6 +3,17 @@ const fs          = require('fs')
 const spawn       = require('child_process').spawn
 const rimraf      = require('rimraf')
 
+const parser = require('../configParser')
+
+const configRaw = `
+Location /about
+  Delay 300
+  Respond "Sorry this page is still under construction" 200
+
+Location /pricing
+  Rewrite /index.html 201
+`
+
 const commonMiddleware = (req, res, next) => {
   let address  = req.headers.host.split(":")[0]
   let path     = req.path
@@ -16,9 +27,10 @@ const commonMiddleware = (req, res, next) => {
     address = address.slice(4)
 
   // This object is shared between middlewares
-  req.forge = {
+  req.context = {
     address,
-    path
+    path,
+    config: parser(configRaw)
   }
 
   if ( address === "getforge.io" ) {
