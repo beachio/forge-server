@@ -13,7 +13,10 @@ const { getFileContent } = require('../s3')
 
 // temp folder is used to cache site meta between deploys
 //   example.com/.forge-meta.json
-const tmpDir = filePath.resolve(__dirname, '../../tmp/')
+const tmpDir = (process.env.NODE_ENV === 'development' ?
+  filePath.resolve(__dirname, '../../tmp/') :
+  filePath.resolve(__dirname, '/tmp/')
+)
 
 // the name of the file with site config
 const forgercName = 'forgerc.txt'
