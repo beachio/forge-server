@@ -16,7 +16,7 @@ const { getFileContent } = require('../s3')
 const tmpDir = filePath.resolve(__dirname, '../../tmp/')
 
 // the name of the file with site config
-const forgercName = '.forgerc'
+const forgercName = 'forgerc.txt'
 
 
 const loadSiteMeta = (address, done) => {
@@ -38,33 +38,34 @@ const loadSiteMeta = (address, done) => {
 
     logger(`⏺  No site meta found in ${metaFileLocation}. Fetching.`)
 
-    async.parallel([
-      (cb) => getFileContent(`${address}/index.html`,     cb),
-      (cb) => getFileContent(`${address}/${forgercName}`, cb)
-    ],
-    (err, result) => {
-
-      let [ indexPage, forgerc ] = result
-
+    getFileContent(`${address}/index.html`, (err, indexPage) => {
       let meta = {}
 
       meta.siteUID = uuid.v4()
-      meta.config  = parser(forgerc || '')
       try {
         meta.token = indexPage.match(/forge-token:(.*[0-9])/)[1]
       } catch(e) {}
 
-      logger(`✅  Fetched meta for site uuid=${meta.siteUID} token=${meta.token}`)
+      logger(`✅  Fetched site index.html: uuid=${meta.siteUID} token=${meta.token}`)
 
-      mkdirp(filePath.dirname(metaFileLocation), (err) => {
-        let metaContent = JSON.stringify(meta, null, 2)
-        fs.writeFile(metaFileLocation, metaContent, () => {
+      getFileContent(`${address}/${meta.token}/${forgercName}`, (err, forgerc) => {
+        meta.config  = parser(forgerc || '')
 
-          logger(`✅  Stored site meta at ${metaFileLocation}`)
-          return done(null, meta)
+        logger(`📃  Loaded site config ${meta.config.length} entries`)
+
+        mkdirp(filePath.dirname(metaFileLocation), (err) => {
+          let metaContent = JSON.stringify(meta, null, 2)
+          fs.writeFile(metaFileLocation, metaContent, () => {
+
+            logger(`✅  Stored site meta at ${metaFileLocation}`)
+            return done(null, meta)
+          })
         })
+
+
       })
     })
+
   })
 }
 

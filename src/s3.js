@@ -19,9 +19,6 @@ const streamBuffers = require('stream-buffers')
 exports.getFileContent = (filepath, cb) => {
   s3.get(filepath)
   .on('response', (response) => {
-
-    logger(response)
-
     if(response.statusCode != 200)
       return cb(null, null)
 
