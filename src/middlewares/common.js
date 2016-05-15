@@ -1,24 +1,73 @@
-const file_path   = require('path')
+const filePath    = require('path')
 const fs          = require('fs')
 const spawn       = require('child_process').spawn
 const rimraf      = require('rimraf')
+const async       = require('async')
+const uuid        = require('node-uuid')
+const mkdirp      = require('mkdirp')
 
 const parser = require('../configParser')
+const logger = require('../logger')
 
-const configRaw = `
-Location /about
-  Delay 300
-  Respond "Sorry this page is still under construction" 200
+const { getFileContent } = require('../s3')
 
-Location /pricing
-  Rewrite /index.html 201
+// temp folder is used to cache site meta between deploys
+//   example.com/.forge-meta.json
+const tmpDir = filePath.resolve(__dirname, '../../tmp/')
 
-NotFound
-  Respond "Hello there! The page you're looking doesn't exist" 404
+// the name of the file with site config
+const forgercName = '.forgerc'
 
-Location /users/*
-  Respond "Users by id"
-`
+
+const loadSiteMeta = (address, done) => {
+  const metaFileLocation = filePath.join(tmpDir, `${address}/.forge-meta.json`)
+
+  fs.readFile(metaFileLocation, { encoding: 'utf-8' }, (err, metaContent) => {
+    if(!err) {
+      let success = true
+      let meta = {}
+      try {
+        meta = JSON.parse(metaContent)
+      } catch(err) { success = false }
+
+      if(success) {
+        logger(`✅  Meta for site loaded from ${metaFileLocation}`)
+        return done(null, meta)
+      }
+    }
+
+    logger(`⏺  No site meta found in ${metaFileLocation}. Fetching.`)
+
+    async.parallel([
+      (cb) => getFileContent(`${address}/index.html`,     cb),
+      (cb) => getFileContent(`${address}/${forgercName}`, cb)
+    ],
+    (err, result) => {
+
+      let [ indexPage, forgerc ] = result
+
+      let meta = {}
+
+      meta.siteUID = uuid.v4()
+      meta.config  = parser(forgerc || '')
+      try {
+        meta.token = indexPage.match(/forge-token:(.*[0-9])/)[1]
+      } catch(e) {}
+
+      logger(`✅  Fetched meta for site uuid=${meta.siteUID} token=${meta.token}`)
+
+      mkdirp(filePath.dirname(metaFileLocation), (err) => {
+        let metaContent = JSON.stringify(meta, null, 2)
+        fs.writeFile(metaFileLocation, metaContent, () => {
+
+          logger(`✅  Stored site meta at ${metaFileLocation}`)
+          return done(null, meta)
+        })
+      })
+    })
+  })
+}
+
 
 const commonMiddleware = (req, res, next) => {
   let address  = req.headers.host.split(":")[0]
@@ -26,19 +75,11 @@ const commonMiddleware = (req, res, next) => {
 
   // Makes testing easier in development
   if ( process.env.NODE_ENV === 'development') {
-    address = 'www.example.com'
+    address = 'molefrog.getforge.io' //'www.example.com'
   }
 
   if ( address.slice(0, 4) === "www." )
     address = address.slice(4)
-
-  // This object is shared between middlewares
-  req.context = {
-    address,
-    path,
-    config: parser(configRaw),
-    vars: {}
-  }
 
   if ( address === "getforge.io" ) {
     res.writeHead(302, { 'Location': 'http://getforge.com' })
@@ -56,7 +97,25 @@ const commonMiddleware = (req, res, next) => {
     return res.end()
   }
 
-  return next()
+  logger(`⚓️  ${address} ${path}`)
+
+  loadSiteMeta(address, (err, meta) => {
+    if(err) return next(err)
+
+    // This object is shared between middlewares
+    req.context = {
+      address,
+      path,
+      config: meta.config || [],
+      vars: {},
+      siteUID: meta.siteUID,
+      token:   meta.token
+    }
+
+    return next()
+  })
+
+
 }
 
 module.exports = commonMiddleware
