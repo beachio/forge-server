@@ -1,13 +1,15 @@
-const { config } = require('../env')
-const knox       = require('knox')
+const s3     = require('../s3').client
+const logger = require('../logger')
 
+const path   = require('path')
 
-const s3 = knox.createClient({
-  key:    config.key,
-  secret: config.secret,
-  bucket: config.bucket,
-  region: config.region
-})
+/*
+ * Whether or not file is static asset
+ */
+const isAsset = (url) => {
+  const knownExts = ['.gif', '.mpg', '.jpg', '.css', '.ico', '.css', '.png', '.mov', '.js']
+  return knownExts.indexOf(path.extname(url)) != -1
+}
 
 const middleware = (req, res, next) => {
   let filename = req.context.path
@@ -16,28 +18,29 @@ const middleware = (req, res, next) => {
     filename += 'index.html'
   }
 
-  // TODO: check ext and serve assets
+  /*
+   * Static assets are served through redirect to S3
+   */
+  if(isAsset(filename)) {
+    const token = req.context.token
+    if(!token) return res.end()
 
-  // else if filename.slice(-4) in ['.gif', '.mpg', '.jpg', '.css', '.ico', '.css', '.png', '.mov'] or filename.slice(-3) in ['.js']
-  //   try
-  //     text = fs.readFileSync "/tmp/cache/#{address}/index", 'utf8'
-  //     token = text.match(/forge-token:(.*[0-9])/)[1]
-  //     res.writeHead(302,
-  //       'Location': "http://asgard-production.s3.amazonaws.com/#{address}/#{token}#{filename}"
-  //     )
-  //     res.end()
+    // TODO: the url should be formed inside s3.js module!
+    const location = `http://asgard-production.s3.amazonaws.com/${req.context.address}/${token}${filename}`
 
-  //   catch e
-  //     res.end()
-  // else if filename.slice(-5) != ".html" && filename.slice(-4) != '.ico' && filename.slice(-4) != ".htm"
-  //   filename += ".html"
+    res.writeHead(302, { 'Location': location })
 
-  // path = address + filename
+    logger(`↪️  ${filename} is asset, redirecting to ${location}`)
+    return res.end()
+  }
 
+
+  /*
+   * For pages only! Serving them directly
+   */
   const filepath = `${req.context.address}${filename}`
+  logger(`📥  Serving file from S3 ${filepath}`)
 
-
-  // For pages only! Serving them directly
   s3.get(filepath).on('response', (response) => {
     if (response.statusCode !== 200) {
       return next()
