@@ -7,6 +7,77 @@
   * No http caching support for pages. Assets caching works automatically since they
     are served with redirect to S3.
 
+# Config file format
+Config file allows to specify how site requests will be handled. The general structure of a file is:
+
+```
+[Condition#1] [args]
+  [Rule#1] [args]
+  [Rule#2] [args]
+  [Rule#3] [args]
+
+[Condition#1] [args]
+  [Rule#1] [args]
+```
+
+So far these conditions are supported `Location <exact path or express-like wildcards>` and `NotFound`.
+Additionaly any plugin can define it's own rules or conditions.
+The example of a config file:
+
+```
+Location /about
+  Delay 1000
+  Rewrite /about.html
+
+Location /pricing
+  Redirect / 301
+
+Location /features/*
+  Respond "Sorry you cant see this one" 403
+```
+
+# Use cases 
+You would probably need `.forgerc` file on your site if you want to reuse pages across differrent URLs or 
+you want better looking links.
+This can be achieved with `Redirect`/`Rewrite` rules. E.g.:
+
+```
+Location /our-team
+  Rewrite /our_team.html
+```
+
+Our imagine you want to give a link to your site with terms and conditions. You're too busy at the moment to 
+design specific page, so instead just redirect users to Google Doc (replace it with your own page, the link will remain
+the same!).
+
+```
+Location /terms
+  Redirect https://docs.google.com/document/d/1_n1_oiyk0b3x7i69n-iAh4f0UmFbvA 302
+```
+
+You don't even need a page, you can write quick text placeholder directly in config file:
+
+```
+Location /terms
+  Respond "Oops! Not ready yet, stay tuned." 200
+```
+
+Use `NotFound` condition if you want to display custom 404 page (Forge already supports 404.html out of box, but say
+you need another name).
+
+```
+NotFound
+  Rewrite /my-custom-404.html
+```
+
+This condition is also useful if have single-page application with `pushState` routing. In order to
+make your app work when it refreshes you need to respond with `index.html` on any unknown request.
+
+```
+NotFound
+  Rewrite /index.html
+```
+
 # Writing plugins
 
 The set of rules that are applied to request can be extended by plugins.
@@ -61,37 +132,3 @@ How to update Node.js version:
  # but be sure that all required global deps are installed
  sudo make install
 ```
-
-# Config file format
-The format of a config file:
-
-```
-  [Condition#1] [args]
-    [Rule#1] [args]
-    [Rule#2] [args]
-    [Rule#3] [args]
-
-  [Condition#1] [args]
-    [Rule#1] [args]
-    [Rule#2] [args]
-    [Rule#3] [args]
-```
-
-Right now there is going to be only one condition `Location` that accepts regexp or path.
-Additionaly any plugin can define it's own rules or conditions.
-So the final config could look like this:
-
-```
-  Location /about
-    BasicAuth login password23
-    Rewrite /about.html
-
-  Location /pricing
-    Redirect http://google.com 301
-
-  Location /restricted/*
-    Respond 403 'Sorry you cant see this one'
-```
-
-This file format allows us to do even more than .htaccess does. But we can also write a
-*.htacccess-to-our-config* converter later.
