@@ -3,6 +3,8 @@ const logger = require('../logger')
 
 const path   = require('path')
 
+const { config } = require('../env')
+
 /*
  * Whether or not file is static asset
  */
@@ -26,7 +28,7 @@ const middleware = (req, res, next) => {
     if(!token) return res.end()
 
     // TODO: the url should be formed inside s3.js module!
-    const location = `http://asgard-production.s3.amazonaws.com/${req.context.address}/${token}${filename}`
+    const location = `http://${config.bucket}.s3.amazonaws.com/${req.context.address}/${token}${filename}`
 
     res.writeHead(302, { 'Location': location })
 
