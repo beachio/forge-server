@@ -5,9 +5,11 @@ const rimraf      = require('rimraf')
 const async       = require('async')
 const uuid        = require('node-uuid')
 const mkdirp      = require('mkdirp')
+const fetch       = require('node-fetch')
 
-const parser = require('../configParser')
-const logger = require('../logger')
+const parser     = require('../configParser')
+const logger     = require('../logger')
+const { config } = require('../env')
 
 const { getFileContent } = require('../s3')
 
@@ -18,9 +20,65 @@ const tmpDir = (process.env.NODE_ENV === 'development' ?
   filePath.resolve(__dirname, '/tmp/')
 )
 
-// the name of the file with site config
-const forgercName = 'forgerc.txt'
+/*
+ * Allows to load site meta using Forge API
+ */
+const fetchMetaByApi = (address, done) => {
+  fetch(`${config.forge_api}/site_meta?url=${address}`)
+  .then((response) => {
+    if(response.status != 200) return done(new Error('Site not found'))
+    return response.json()
+  })
+  .then((json) => {
+    return done(null, {
+      token:     json.token,
+      configRaw: json.siterc
+    })
+  })
+  .catch(err => { return done(err) })
+}
 
+/*
+ * This method allows to fetch site method using
+ * direct access to S3.
+ * It's slower but we keep it as a fallback
+ */
+
+// the name of the file with site config
+const forgercName = '.forgerc'
+
+const fetchMetaOldWay = (address, done) => {
+  getFileContent(`${address}/index.html`, (err, indexPage) => {
+    if (err) return done(err)
+
+    let token = null
+
+    try { token = indexPage.match(/forge-token:(.*[0-9])/)[1] } catch(e) {}
+
+    logger(`✅  Fetched site index.html: token=${token}`)
+
+    getFileContent(`${address}/${token}/${forgercName}`, (err, forgerc) => {
+      if (err) return done(err)
+
+      return done(null, {
+        token: token,
+        configRaw: forgerc
+      })
+    })
+  })
+}
+
+const forceLoadMeta = (address, done) => {
+  fetchMetaByApi(address, (err, result) => {
+    if(err) {
+      logger(`⏺  Fetching site meta through Forge API failed. Falling back to old way...`)
+      return fetchMetaOldWay(address, done)
+    }
+
+    logger(`✅  Fetched site meta through Forge API`)
+    done(err, result)
+  })
+}
 
 const loadSiteMeta = (address, done) => {
   const metaFileLocation = filePath.join(tmpDir, `${address}/.forge-meta.json`)
@@ -29,9 +87,7 @@ const loadSiteMeta = (address, done) => {
     if(!err) {
       let success = true
       let meta = {}
-      try {
-        meta = JSON.parse(metaContent)
-      } catch(err) { success = false }
+      try { meta = JSON.parse(metaContent) } catch(err) { success = false }
 
       if(success) {
         logger(`✅  Meta for site loaded from ${metaFileLocation}`)
@@ -41,34 +97,23 @@ const loadSiteMeta = (address, done) => {
 
     logger(`⏺  No site meta found in ${metaFileLocation}. Fetching.`)
 
-    getFileContent(`${address}/index.html`, (err, indexPage) => {
-      let meta = {}
+    forceLoadMeta(address, (err, mt) => {
+      if (err) return done(err)
 
-      meta.siteUID = uuid.v4()
-      try {
-        meta.token = indexPage.match(/forge-token:(.*[0-9])/)[1]
-      } catch(e) {}
+      mt.siteUID = uuid.v4()
+      mt.config  = parser(mt.configRaw || '')
 
-      logger(`✅  Fetched site index.html: uuid=${meta.siteUID} token=${meta.token}`)
+      logger(`📃  Loaded site config ${mt.config.length} entries`)
 
-      getFileContent(`${address}/${meta.token}/${forgercName}`, (err, forgerc) => {
-        meta.config  = parser(forgerc || '')
+      mkdirp(filePath.dirname(metaFileLocation), (err) => {
+        let metaContent = JSON.stringify(mt, null, 2)
+        fs.writeFile(metaFileLocation, metaContent, () => {
 
-        logger(`📃  Loaded site config ${meta.config.length} entries`)
-
-        mkdirp(filePath.dirname(metaFileLocation), (err) => {
-          let metaContent = JSON.stringify(meta, null, 2)
-          fs.writeFile(metaFileLocation, metaContent, () => {
-
-            logger(`✅  Stored site meta at ${metaFileLocation}`)
-            return done(null, meta)
-          })
+          logger(`✅  Stored site meta at ${metaFileLocation}`)
+          return done(null, mt)
         })
-
-
       })
     })
-
   })
 }
 
@@ -78,8 +123,8 @@ const commonMiddleware = (req, res, next) => {
   let path     = req.path
 
   // Makes testing easier in development
-  if ( process.env.NODE_ENV === 'development') {
-    address = 'molefrog.getforge.io' //'www.example.com'
+  if ( process.env.NODE_ENV === 'development' && config.overwrite_address) {
+    address = config.overwrite_address
   }
 
   if ( address.slice(0, 4) === "www." )

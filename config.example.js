@@ -5,6 +5,7 @@ exports.config = function() {
     secret: 'TkXefLcpZkERTwHKdBj3ByAm/r3WrkdfTkBi3qqZ',
     bucket: 'forgemolefrog',
     region: 'us-west-2',
+    forge_api: 'http://localhost:5000/',
     port:   8080
   };
 }
