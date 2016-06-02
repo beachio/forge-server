@@ -1,4 +1,5 @@
 knox        = require 'knox'
+config      = require('./config').config()
 http        = require 'http'
 rimraf      = require 'rimraf'
 file_path   = require 'path'
