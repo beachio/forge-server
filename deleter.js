@@ -13,7 +13,7 @@ const config = require('./config').config()
 //   example.com/.forge-meta.json
 const tmpDir = (process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, './tmp/') :
-  path.resolve(__dirname, '/tmp/')
+  path.resolve(__dirname, '/tmp/cache/')
 )
 
 /*
