@@ -17,7 +17,7 @@ const { getFileContent } = require('../s3')
 //   example.com/.forge-meta.json
 const tmpDir = (process.env.NODE_ENV === 'development' ?
   filePath.resolve(__dirname, '../../tmp/') :
-  filePath.resolve(__dirname, '/tmp/')
+  filePath.resolve(__dirname, '/tmp/cache/')
 )
 
 /*
