@@ -85,7 +85,9 @@ const cleanSite = (site) => {
 
 const cleanSites = (sites) => {
   if(!sites.length) {
-    console.log('🌚  Nothing to do...')
+    // TODO: output this message with some throttle
+    //   e.g. once in X seconds only
+    // console.log('🌚  Nothing to do...')
   }
 
   return Promise.all( sites.map(cleanSite) )
