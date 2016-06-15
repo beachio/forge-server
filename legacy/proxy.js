@@ -62,7 +62,7 @@
       filename = "/index.html";
     } else if (filename.slice(-1) === "/") {
       filename += "index.html";
-    } else if (((_ref = filename.slice(-4)) === '.gif' || _ref === '.mpg' || _ref === '.jpg' || _ref === '.css' || _ref === '.ico' || _ref === '.css' || _ref === '.png' || _ref === '.mov' ||  _ref === '.svg') || ((_ref1 = filename.slice(-3)) === '.js')) {
+    } else if (((_ref = filename.slice(-4)) === '.gif' || _ref === '.mpg' || _ref === '.mp4' || _ref === '.jpg' || _ref === '.css' || _ref === '.ico' || _ref === '.css' || _ref === '.png' || _ref === '.mov' ||  _ref === '.svg') || ((_ref1 = filename.slice(-3)) === '.js')) {
       try {
         text = fs.readFileSync("/tmp/cache/" + address + "/index", 'utf8');
         token = text.match(/forge-token:(.*[0-9])/)[1];
