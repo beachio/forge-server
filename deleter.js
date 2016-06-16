@@ -57,7 +57,8 @@ const touchFile = (fname) => {
   return new Promise( (resolve, reject) => {
     mkdirp(path.dirname(fname), (err) => {
       if(err) return reject(err)
-      touch(fname, (err) => {
+
+      fs.writeFile(fname, 'w00t', (err) => {
         if(err) return reject(err)
         resolve()
       })
