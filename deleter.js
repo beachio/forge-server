@@ -84,6 +84,11 @@ const cleanSite = (site) => {
   })
 }
 
+// Strips www. part of an URL
+const normalizeUrl = (url) => {
+  return (url || '').replace(/^www\./, '')
+}
+
 const cleanSites = (sites) => {
   if(!sites.length) {
     // TODO: output this message with some throttle
@@ -91,7 +96,11 @@ const cleanSites = (sites) => {
     // console.log('🌚  Nothing to do...')
   }
 
-  return Promise.all( sites.map(cleanSite) )
+  const normalizedUrls = sites.map((site) => {
+    return Object.assign({}, site, { url: normalizeUrl(site.url) })
+  })
+
+  return Promise.all( normalizedUrls.map(cleanSite) )
     .then(updateLastCheck)
 }
 
