@@ -59,7 +59,11 @@ const touchFile = (fname) => {
   logger(`👆  Touching file ${fname}`)
 
   return new Promise( (resolve, reject) => {
-    mkdirp(path.dirname(fname), (err) => {
+    const directory = path.dirname(fname)
+
+    logger('🗂  Creating dir ${directory}')
+
+    mkdirp(directory, (err) => {
       if(err) return reject(err)
 
       fs.writeFile(fname, 'w00t', (err) => {
