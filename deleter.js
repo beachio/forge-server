@@ -16,6 +16,10 @@ const tmpDir = (process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, '/tmp/cache/')
 )
 
+const logger = (...args) => {
+  console.log(`🕐  ${moment().format('MM.DD.YYYY HH:mm:ss')} #`, ...args)
+}
+
 /*
  * In order to provide downtime support
  * we use time of the last sucessfull check
@@ -30,7 +34,7 @@ try {
   lastCheckAt = moment().subtract(1, 'days').toDate()
 }
 
-console.log(`😎  Last check was performed ${moment(lastCheckAt).format('MM.DD HH:mm')}`)
+logger(`😎  Last check was performed ${moment(lastCheckAt).format('MM.DD HH:mm')}`)
 
 const updateLastCheck = () => {
   lastCheckAt = new Date
@@ -41,7 +45,7 @@ const updateLastCheck = () => {
  * Utility fs functions (Promise-compliant)
  */
 const removeDir = (dir) => {
-  console.log(`✂️  Removing dir ${dir}`)
+  logger(`✂️  Removing dir ${dir}`)
 
   return new Promise( (resolve, reject) => {
     rimraf(dir, (err) => {
@@ -52,7 +56,7 @@ const removeDir = (dir) => {
 }
 
 const touchFile = (fname) => {
-  console.log(`👆  Touching file ${fname}`)
+  logger(`👆  Touching file ${fname}`)
 
   return new Promise( (resolve, reject) => {
     mkdirp(path.dirname(fname), (err) => {
@@ -67,7 +71,7 @@ const touchFile = (fname) => {
 }
 
 const cleanSite = (site) => {
-  console.log(`💣  Cleaning site ${site.url}`)
+  logger(`💣  Cleaning site ${site.url}`)
 
   return Promise.all([
     removeDir(path.join(tmpDir, site.url)),
@@ -93,7 +97,7 @@ const cleanSites = (sites) => {
   if(!sites.length) {
     // TODO: output this message with some throttle
     //   e.g. once in X seconds only
-    // console.log('🌚  Nothing to do...')
+    // logger('🌚  Nothing to do...')
   }
 
   const normalizedUrls = sites.map((site) => {
@@ -126,7 +130,7 @@ const checkDeployed = () => {
     cleanSites(sitesToUpdate)
   })
   .catch( err => {
-    console.log('💣  BOOM! Error happened', err)
+    logger('💣  BOOM! Error happened', err)
     return null
   })
   .then( _ => {
