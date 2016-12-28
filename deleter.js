@@ -86,7 +86,6 @@ const cleanSite = (site) => {
     if(site.has_config) {
       return Promise.all([
         touchFile(path.join(tmpDir, site.url, '.forge-config')),
-        touchFile(path.join(tmpDir, `www.${site.url}`, '.forge-config'))
       ])
     }
   })
@@ -137,9 +136,10 @@ const checkDeployed = () => {
     logger('💣  BOOM! Error happened', err)
     return null
   })
-  .then( _ => {
+  .finally
+  {
     setTimeout(checkDeployed, CHECK_INTERVAL)
-  })
+  }
 
 }
 
