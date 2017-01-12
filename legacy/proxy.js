@@ -28,85 +28,103 @@
 
   server = http.createServer(function(req, res) {
     var address, e, filename, path, serveFilePathWithFallback, text, token, _ref, _ref1;
-    address = req.headers.host.split(":")[0];
-    filename = req.url;
-    if (address === "localhost") {
-      address = "www.riothq.com";
-    }
-    filename = filename.split("?")[0] || "/index.html";
-    if (address.slice(0, 4) === "www.") {
-      address = address.slice(4);
-    }
-    if (address === "getforge.io") {
-      res.writeHead(302, {
-        'Location': 'http://getforge.com'
-      });
-      return res.end();
-    }
-    if (filename === '/_asgard_health_check.html') {
-      return res.end();
-    }
-    if (filename === "/_asgard_cache_buster") {
-      rimraf("/tmp/cache/" + address, function() {
-        return res.end();
-      });
-      rimraf("/tmp/cache/www." + address, function() {
-        return res.end();
-      });
-      spawn('restart nginx', [], {
-        stdio: 'inherit'
-      });
-      return res.end();
-    }
-    if (filename === "/") {
-      filename = "/index.html";
-    } else if (filename.slice(-1) === "/") {
-      filename += "index.html";
-    } else if (((_ref = filename.slice(-4)) === '.gif' || _ref === '.mpg' || _ref === '.mp4' || _ref === '.jpg' || _ref === '.css' || _ref === '.ico' || _ref === '.css' || _ref === '.png' || _ref === '.mov' ||  _ref === '.svg') || ((_ref1 = filename.slice(-3)) === '.js')) {
-      try {
-        text = fs.readFileSync("/tmp/cache/" + address + "/index", 'utf8');
-        token = text.match(/forge-token:(.*[0-9])/)[1];
-        res.writeHead(302, {
-          'Location': "http://asgard-production.s3.amazonaws.com/" + address + "/" + token + filename
-        });
-        res.end();
-      } catch (_error) {
-        e = _error;
-        res.end();
+
+    try { address = req.headers.host.split(":")[0]; } catch(error) { console.log(error) }
+    try { filename = req.url; } catch(error) { console.log(error)}
+
+    try {
+      if (address === "localhost") {
+        address = "www.riothq.com";
       }
-    } else if (filename.slice(-5) !== ".html" && filename.slice(-4) !== '.ico' && filename.slice(-4) !== ".htm") {
-      filename += ".html";
+      filename = filename.split("?")[0] || "/index.html";
+      if (address.slice(0, 4) === "www.") {
+        address = address.slice(4);
+      }
+      if (address === "getforge.io") {
+        res.writeHead(302, {
+          'Location': 'http://getforge.com'
+        });
+        return res.end();
+      }
+      if (filename === '/_asgard_health_check.html') {
+        return res.end();
+      }
+      if (filename === "/_asgard_cache_buster") {
+        rimraf("/tmp/cache/" + address, function () {
+          return res.end();
+        });
+        rimraf("/tmp/cache/www." + address, function () {
+          return res.end();
+        });
+        spawn('restart nginx', [], {
+          stdio: 'inherit'
+        });
+        return res.end();
+      }
+      if (filename === "/") {
+        filename = "/index.html";
+      } else if (filename.slice(-1) === "/") {
+        filename += "index.html";
+      } else if (((_ref = filename.slice(-4)) === '.gif' || _ref === '.mpg' || _ref === '.mp4' || _ref === '.jpg' || _ref === '.css' || _ref === '.ico' || _ref === '.css' || _ref === '.png' || _ref === '.mov' || _ref === '.svg') || ((_ref1 = filename.slice(-3)) === '.js')) {
+        try {
+          text = fs.readFileSync("/tmp/cache/" + address + "/index", 'utf8');
+          token = text.match(/forge-token:(.*[0-9])/)[1];
+          res.writeHead(302, {
+            'Location': "http://asgard-production.s3.amazonaws.com/" + address + "/" + token + filename
+          });
+          res.end();
+        } catch (_error) {
+          e = _error;
+          res.end();
+        }
+      } else if (filename.slice(-5) !== ".html" && filename.slice(-4) !== '.ico' && filename.slice(-4) !== ".htm") {
+        filename += ".html";
+      }
     }
+    catch(error) {
+      console.log(error)
+    }
+
     path = address + filename;
     serveFilePathWithFallback = function(path, errorCallback) {
       return s3.get(path).on('response', function(res_from_s3) {
         var statusCode;
-        if (res_from_s3.statusCode === 200) {
-          statusCode = res_from_s3.statusCode;
-          if (path.slice(10) === "/404.html") {
-            statusCode = 404;
+        try {
+          if (res_from_s3.statusCode === 200) {
+            statusCode = res_from_s3.statusCode;
+            if (path.slice(10) === "/404.html") {
+              statusCode = 404;
+            }
+            res.writeHead(statusCode, {
+              'content-type': res_from_s3.headers['content-type']
+            });
+            res_from_s3.on('data', function (chunk) {
+              return res.write(chunk);
+            });
+            return res_from_s3.on('end', function () {
+              return res.end();
+            });
+          } else {
+            return errorCallback();
           }
-          res.writeHead(statusCode, {
-            'content-type': res_from_s3.headers['content-type']
-          });
-          res_from_s3.on('data', function(chunk) {
-            return res.write(chunk);
-          });
-          return res_from_s3.on('end', function() {
-            return res.end();
-          });
-        } else {
-          return errorCallback();
+        }
+        catch(error) {
+          console.log(error)
         }
       }).end();
     };
-    return serveFilePathWithFallback(path, function() {
-      return serveFilePathWithFallback("" + address + "/404.html", function() {
-        res.writeHead(404, {
-          'content-type': 'text/html'
-        });
-        res.write(error404);
-        return res.end();
+    return serveFilePathWithFallback(path, function () {
+      return serveFilePathWithFallback("" + address + "/404.html", function () {
+        try {
+          res.writeHead(404, {
+            'content-type': 'text/html'
+          });
+          res.write(error404);
+          return res.end();
+        }
+        catch(error) {
+          console.log(error)
+        }
       });
     });
   });
