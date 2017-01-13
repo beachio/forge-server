@@ -23,5 +23,8 @@
     "rimraf": "^2.5.2",
     "stream-buffers": "^3.0.0",
     "touch": "^1.0.0"
+  },
+  "devDependencies": {
+    "shipit-deploy": "^2.0.0"
   }
 }
