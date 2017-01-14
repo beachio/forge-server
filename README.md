@@ -131,4 +131,33 @@ How to update Node.js version:
  # to restart old proxy.js with the newer version of node.js
  # but be sure that all required global deps are installed
  sudo make install
+
+```
+
+# To deploy a node server on ec2 follow the steps below:
+
+1) First you need to install shipit-cli
+
+```npm install --global shipit-cli```
+
+2) Next, install any dependencies and plugins
+
+```npm install```
+
+3) Rename the file to secrets.example.json secrets.json and change the example values to real values.
+
+```repository url: https://github.com/beachio/forge-server.git```
+
+4)Now you can deploy the node server
+
+```shipit production deploy```
+
+5) To rollback the version of the node server, use
+
+```shipit production rollback```
+
+```
+Note:
+After deployment, processes proxy, index and deleter will restart automatically.
+Before deploy, make sure you push your changes on githab.
 ```
