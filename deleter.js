@@ -119,7 +119,7 @@ const cleanSites = (sites) => {
 const CHECK_INTERVAL = 2000
 
 const checkDeployed = () => {
-  let since = moment(lastCheckAt).unix()
+  let since = moment(lastCheckAt).unix() - 2;
 
   fetch(`${config.forge_api}/deployed_sites.json?deployed_since=${since}`)
   .then((response) => {
