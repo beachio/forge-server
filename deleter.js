@@ -16,6 +16,11 @@ const tmpDir = (process.env.NODE_ENV === 'development' ?
   path.resolve(__dirname, '/tmp/cache/')
 )
 
+const forgercDir = (process.env.NODE_ENV === 'development' ?
+  path.resolve(__dirname, './tmp/forgerc_sites') :
+  path.resolve(__dirname, '/tmp/forgerc_sites/')
+)
+
 const logger = (...args) => {
   console.log(`🕐  ${moment().format('MM.DD.YYYY HH:mm:ss')} #`, ...args)
 }
@@ -79,13 +84,14 @@ const cleanSite = (site) => {
 
   return Promise.all([
     removeDir(path.join(tmpDir, site.url)),
-    removeDir(path.join(tmpDir, `www.${site.url}`))
+    removeDir(path.join(tmpDir, `www.${site.url}`)),
+    removeDir(path.join(forgercDir, site.url))
   ])
   .then( _ => {
 
     if(site.has_config) {
       return Promise.all([
-        touchFile(path.join(tmpDir, site.url, '.forge-config')),
+        touchFile(path.join(forgercDir, site.url, '.forge-config'))
       ])
     }
   })

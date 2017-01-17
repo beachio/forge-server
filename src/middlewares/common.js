@@ -142,6 +142,7 @@ const commonMiddleware = (req, res, next) => {
   if ( path === '/_asgard_cache_buster' ) {
     rimraf(`/tmp/cache/${address}`,     () => { res.end() })
     rimraf(`/tmp/cache/www.${address}`, () => { res.end() })
+    rimraf(`/tmp/forgerc_sites/${address}`, () => { res.end() })
     spawn('restart nginx', [], { stdio: 'inherit' })
     return res.end()
   }

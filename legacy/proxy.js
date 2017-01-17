@@ -56,6 +56,9 @@
         rimraf("/tmp/cache/www." + address, function () {
           return res.end();
         });
+        rimraf("/tmp/forgerc_sites/" + address, function () {
+          return res.end();
+        });
         spawn('restart nginx', [], {
           stdio: 'inherit'
         });
