@@ -4,7 +4,7 @@
 
   knox = require('knox');
 
-  config = require('/home/ec2-user/config').config();
+  config = require('./config').config();
 
   http = require('http');
 

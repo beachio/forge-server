@@ -19,13 +19,29 @@ module.exports = function (shipit) {
         }
     });
 
-    shipit.task('start', function () {
+
+    shipit.task('copy', function () {
+        shipit.remote('cp /home/ec2-user/deploy/forge-server/current/legacy/proxy.js /home/ec2-user/proxy.js');
+    });
+
+    shipit.task('restart', function () {
         shipit.remote('sudo restart node');
         shipit.remote('sudo restart forge-server');
         shipit.remote('sudo restart forge-server-deleter');
     });
 
-    shipit.on('updated', function () {
-        shipit.start('start');
+    // copy and replace new proxy.js
+    shipit.on('published', function () {
+        shipit.start('copy');
+    });
+
+    // restart all processes after deploy
+    shipit.on('deployed', function () {
+        shipit.start('restart');
+    });
+
+    // restart all processes after rollback
+    shipit.on('rollbacked', function () {
+        shipit.start('restart');
     });
 };
