@@ -85,13 +85,15 @@ const cleanSite = (site) => {
   return Promise.all([
     removeDir(path.join(tmpDir, site.url)),
     removeDir(path.join(tmpDir, `www.${site.url}`)),
-    removeDir(path.join(forgercDir, site.url))
+    removeDir(path.join(forgercDir, site.url)),
+    removeDir(path.join(forgercDir, `www.${site.url}`))
   ])
   .then( _ => {
 
     if(site.has_config) {
       return Promise.all([
-        touchFile(path.join(forgercDir, site.url, '.forge-config'))
+        touchFile(path.join(forgercDir, site.url, '.forge-config')),
+        touchFile(path.join(forgercDir, `www.${site.url}`, '.forge-config'))
       ])
     }
   })

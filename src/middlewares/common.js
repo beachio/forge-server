@@ -143,6 +143,7 @@ const commonMiddleware = (req, res, next) => {
     rimraf(`/tmp/cache/${address}`,     () => { res.end() })
     rimraf(`/tmp/cache/www.${address}`, () => { res.end() })
     rimraf(`/tmp/forgerc_sites/${address}`, () => { res.end() })
+    rimraf(`/tmp/forgerc_sites/www.${address}`, () => { res.end() })
     spawn('restart nginx', [], { stdio: 'inherit' })
     return res.end()
   }
