@@ -27,7 +27,7 @@ const tokenize = line => {
  */
 const configParser = configRaw => {
   let conditions = []
-
+  var redirect_rewrite_rule;
   let lines = splitLines(configRaw)
   let currentCondition = null
 
@@ -45,6 +45,25 @@ const configParser = configRaw => {
         args: tokens.slice(1)
       }
 
+      //  new rule for redirect
+      if(rule.name === 'Rewrite' && rule.args.includes('without-extension')) {
+        var redirect_url;
+        if(tokens.slice(1)[0] === '/index.html')
+          redirect_url = '/'
+        else redirect_url = [tokens.slice(1)[0].replace('.html', '')]
+
+        redirect_rewrite_rule = {
+          name: 'Redirect',
+          args: [redirect_url]
+        }
+        redirectCondition = {
+          condition: 'Location',
+          args: [`${tokens[1]}`],
+          rules: [redirect_rewrite_rule]
+        }
+        conditions.push(redirectCondition)}
+      //////////////////////////////////////////
+
       currentCondition.rules.push(rule)
 
     } else {
@@ -57,6 +76,7 @@ const configParser = configRaw => {
       }
     }
   }
+
   if(currentCondition) conditions.push(currentCondition)
 
   return conditions
