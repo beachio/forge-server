@@ -32,6 +32,8 @@ module.exports = (req, res, next) => {
   if(!matchingCondition)
     return next()
 
+    if(matchingCondition.rules[0].name === 'ClearLastSlash')
+      matchingCondition.rules[0].args[1] = req.context.path
   let ruleMiddlewares = matchingCondition.rules
     .map(rule => ({ func: plugins.rules[rule.name], args: rule.args }))
     .filter( rule => rule.func )
