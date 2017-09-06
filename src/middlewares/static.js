@@ -9,13 +9,28 @@ const { config } = require('../env')
  * Whether or not file is static asset
  */
 const isAsset = (url) => {
-  const knownExts = ['.gif', '.mpg', '.jpg', '.css', '.ico', '.css', '.png', '.mov', '.js']
+  const knownExts = ['.gif', '.mpg', '.jpg', '.css', '.ico', '.css', '.png', '.mov', '.js', '.jpeg']
   return knownExts.indexOf(path.extname(url)) != -1
+}
+
+const isFiles = (rules) => {
+  for(let i = 0; i < rules.length; i++ ) {
+    if (rules[i].condition != 'Files')
+      continue
+    return rules[i].rules.map(function(rule){
+      if (rule.name[0] != '/')
+        rule.name = '/' + rule.name
+      return rule.name
+    })
+  }
 }
 
 const middleware = (req, res, next) => {
   let filename = req.context.path
-
+  filesInConfig = isFiles(req.context.config)
+  
+  if(typeof filesInConfig == 'undefined')
+    filesInConfig = []
   if(filename.slice(-1) == '/') {
     filename += 'index.html'
   }
@@ -23,7 +38,7 @@ const middleware = (req, res, next) => {
   /*
    * Static assets are served through redirect to S3
    */
-  if(isAsset(filename)) {
+  if(isAsset(filename) || filesInConfig.indexOf(filename) != -1) {
     const token = req.context.token
     if(!token) return res.end()
 
