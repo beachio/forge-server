@@ -38,7 +38,7 @@ const middleware = (req, res, next) => {
   /*
    * Static assets are served through redirect to S3
    */
-  if(isAsset(filename) || filesInConfig.indexOf(filename) != -1) {
+  if(isAsset(filename)) {
     const token = req.context.token
     if(!token) return res.end()
 
@@ -55,7 +55,13 @@ const middleware = (req, res, next) => {
   /*
    * For pages only! Serving them directly
    */
-  const filepath = `${req.context.address}${filename}`
+  if (filesInConfig.indexOf(filename) != -1){
+    const token = req.context.token
+    if(!token) return res.end()
+    filepath = `${req.context.address}/${token}${filename}`
+  } else{
+    filepath = `${req.context.address}${filename}`
+  }
   logger(`📥  Serving file from S3 ${filepath}`)
 
   s3.get(filepath).on('response', (response) => {
