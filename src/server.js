@@ -6,6 +6,7 @@ const logger      = require('./logger')
 let app = express()
 
 app.use(require('./middlewares/common'))
+app.use(require('./middlewares/expired'))
 app.use(require('./middlewares/rules'))
 app.use(require('./middlewares/static'))
 app.use(require('./middlewares/notFound'))

@@ -32,7 +32,8 @@ const fetchMetaByApi = (address, done) => {
   .then((json) => {
     return done(null, {
       token:     json.token,
-      configRaw: json.siterc
+      configRaw: json.siterc,
+      expired:   json.trial_expired
     })
   })
   .catch(err => { return done(err) })
@@ -160,7 +161,8 @@ const commonMiddleware = (req, res, next) => {
       config: meta.config || [],
       vars: {},
       siteUID: meta.siteUID,
-      token:   meta.token
+      token:   meta.token,
+      expired:  meta.expired
     }
 
     return next()

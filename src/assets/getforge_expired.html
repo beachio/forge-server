@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        /* @override
+	http://forge.dev/placeholder/style.css */
+
+        * {
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            height: 100%;
+            background: -webkit-radial-gradient(ellipse farthest-corner, white 32.6%, #ecebe7 78.1%) #fff;
+            background: -moz-radial-gradient(ellipse farthest-corner, white 32.6%, #ecebe7 78.1%) #fff;
+            background: -ms-radial-gradient(ellipse farthest-corner, white 32.6%, #ecebe7 78.1%) #fff;
+            background: radial-gradient(ellipse farthest-corner, white 32.6%, #ecebe7 78.1%) #fff;
+        }
+
+        body {
+            font: 14px/36px "open-sans", sans-serif;
+            color: #96948e;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #placeholder {
+            width: 500px;
+            height: 280px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -180px;
+            margin-left: -250px;
+        }
+
+        span.logo {
+            width: 140px;
+            height: 140px;
+            background-image: url(https://dooe3vx785zy.cloudfront.net/assets/public/logo.png);
+            display: block;
+            position: relative;
+            text-indent: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 40px;
+        }
+
+        p {
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        p:first-of-type {
+            font-size: 16px;
+        }
+
+        @media only screen and (max-width: 600px) {
+
+            #placeholder {
+                width: 80%;
+                margin-left: -40%;
+            }
+
+        }
+
+        @media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
+
+            span.logo {
+                background-image: url(logo@2x.png);
+                background-size: 140px 140px;
+            }
+
+        }
+    </style>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="/src/assets/favicon.ico" rel="shortcut icon">
+
+    <title>Expired Forge site</title>
+
+</head>
+
+<body>
+
+<div id="placeholder">
+    <span class="logo">Forge</span>
+    <p>Your trial version has expired</p>
+    <p>Site will be deleted soon, please purchase subscription<span id="date"> </span></p>
+
+</div>
+
+</body>
+
+</html>
