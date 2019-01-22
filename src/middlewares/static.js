@@ -4,7 +4,7 @@ const logger = require('../logger')
 const path   = require('path')
 
 const { config } = require('../env')
-
+const zlib = require('zlib');
 /*
  * Whether or not file is static asset
  */
@@ -38,7 +38,7 @@ const middleware = (req, res, next) => {
   /*
    * Static assets are served through redirect to S3
    */
-  if(isAsset(filename)) {
+  if(isAsset(filename) && filesInConfig.indexOf(filename) == -1) {
     const token = req.context.token
     if(!token) return res.end()
 
@@ -75,7 +75,21 @@ const middleware = (req, res, next) => {
       'content-type': response.headers['content-type']
     })
 
-    response.on('data', chunk => res.write(chunk))
+    response.on('data', chunk =>  {
+      if (response.headers['content-encoding'] == 'gzip')
+      {
+        var text;
+        text =zlib.unzipSync(chunk, (err, chunk) => {
+          return chunk.toString()
+        });
+        res.write(text);
+      }
+      else
+      {
+        res.write(chunk)
+      }
+    });
+
     response.on('end', ()     => res.end())
   }).end()
 }
