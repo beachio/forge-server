@@ -76,7 +76,7 @@
           text = fs.readFileSync("/tmp/cache/" + address + "/index", 'utf8');
           token = text.match(/forge-token:(.*[0-9])/)[1];
           res.writeHead(302, {
-            'Location': "http://asgard-production.s3.amazonaws.com/" + address + "/" + token + filename
+            'Location': "https://asgard-production.s3.amazonaws.com/" + address + "/" + token + filename
           });
           res.end();
         } catch (_error) {

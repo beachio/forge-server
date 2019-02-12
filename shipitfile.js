@@ -12,7 +12,8 @@ module.exports = function (shipit) {
             ignores: ['.git', 'node_modules'],
             keepReleases: 2,
             deleteOnRollback: false,
-            key: envmnt.production.key_path
+            key: envmnt.production.key_path,
+            branch: 'master'
         },
         production: {
             servers: envmnt.production.user + '@' + envmnt.production.host
