@@ -43,7 +43,7 @@ const middleware = (req, res, next) => {
     if(!token) return res.end()
 
     // TODO: the url should be formed inside s3.js module!
-    const location = `http://${config.bucket}.s3.amazonaws.com/${req.context.address}/${token}${filename}`
+    const location = `https://${config.bucket}.s3.amazonaws.com/${req.context.address}/${token}${filename}`
 
     res.writeHead(302, { 'Location': location })
 
