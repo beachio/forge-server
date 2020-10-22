@@ -1,5 +1,5 @@
 knox        = require 'knox'
-config      = require('/home/ec2-user/config').config()
+config      = require('/var/deploy/config').config()
 http        = require 'http'
 rimraf      = require 'rimraf'
 file_path   = require 'path'
@@ -15,7 +15,7 @@ s3 = knox.createClient
   bucket: "asgard-production"
 
 server = http.createServer (req, res) ->
-
+  
   address  = req.headers.host.split(":")[0]
   filename = req.url
 
