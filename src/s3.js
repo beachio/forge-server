@@ -1,11 +1,11 @@
-const { config } = require('./env')
+//const { config } = require('./env')
 const knox       = require('knox')
 
 const s3 = knox.createClient({
-  key:    config.key,
-  secret: config.secret,
-  bucket: config.bucket,
-  region: config.region
+  key:    'dfdsf',//config.key,
+  secret: 'fdgdfg',//config.secret,
+  bucket: 'dgdgd',//config.bucket,
+  region: 'fgggg'//config.region
 })
 
 exports.client = s3

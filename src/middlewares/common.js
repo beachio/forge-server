@@ -9,7 +9,7 @@ const fetch       = require('node-fetch')
 
 const parser     = require('../configParser')
 const logger     = require('../logger')
-const { config } = require('../env')
+//const { config } = require('../env')
 
 const { getFileContent } = require('../s3')
 
@@ -23,21 +23,21 @@ const tmpDir = (process.env.NODE_ENV === 'development' ?
 /*
  * Allows to load site meta using Forge API
  */
-const fetchMetaByApi = (address, done) => {
-  fetch(`${config.forge_api}/site_meta?url=${address}`)
-  .then((response) => {
-    if(response.status != 200) return done(new Error('Site not found'))
-    return response.json()
-  })
-  .then((json) => {
-    return done(null, {
-      token:     json.token,
-      configRaw: json.siterc,
-      expired:   json.trial_expired
-    })
-  })
-  .catch(err => { return done(err) })
-}
+// const fetchMetaByApi = (address, done) => {
+//   fetch(`${config.forge_api}/site_meta?url=${address}`)
+//   .then((response) => {
+//     if(response.status != 200) return done(new Error('Site not found'))
+//     return response.json()
+//   })
+//   .then((json) => {
+//     return done(null, {
+//       token:     json.token,
+//       configRaw: json.siterc,
+//       expired:   json.trial_expired
+//     })
+//   })
+//   .catch(err => { return done(err) })
+// }
 
 /*
  * This method allows to fetch site method using
