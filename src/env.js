@@ -1,1 +1,2 @@
-//module.exports.config = require('/var/deploy/config').config()
+module.exports.config = require('../config').config()
+
