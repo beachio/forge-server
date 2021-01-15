@@ -43,7 +43,9 @@ logger(`😎  Last check was performed ${moment(lastCheckAt).format('MM.DD HH:mm
 
 const updateLastCheck = () => {
   lastCheckAt = new Date
-  fsp.writeFile(lastCheckedAtFile, lastCheckAt)
+  fs.writeFile(lastCheckedAtFile, lastCheckAt.toString(), (err) => {
+      if(err) return reject(err)
+  })
 }
 
 /*
@@ -71,9 +73,8 @@ const touchFile = (fname) => {
     mkdirp(directory, (err) => {
       if(err) return reject(err)
 
-      fs.writeFile(fname, 'w00t', (err) => {
+      fsp.writeFile(fname, 'w00t', (err) => {
         if(err) return reject(err)
-        resolve()
       })
     })
   })
@@ -114,9 +115,8 @@ const cleanSites = (sites) => {
   const normalizedUrls = sites.map((site) => {
     return Object.assign({}, site, { url: normalizeUrl(site.url) })
   })
-
-  return Promise.all( normalizedUrls.map(cleanSite) )
-    .then(updateLastCheck)
+  Promise.all( normalizedUrls.map(cleanSite) )
+  return updateLastCheck()
 }
 
 /*
@@ -124,10 +124,10 @@ const cleanSites = (sites) => {
  * and cleans the caches
  */
 
-const CHECK_INTERVAL = 2000
+const CHECK_INTERVAL = 5000
 
 const checkDeployed = () => {
-  let since = moment(lastCheckAt).unix() - 2;
+  let since = moment(lastCheckAt).unix() - 5;
 
   fetch(`${config.forge_api}/deployed_sites.json?deployed_since=${since}`)
   .then((response) => {
