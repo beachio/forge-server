@@ -5,7 +5,6 @@ const s3 = knox.createClient({
   key:    config.key,
   secret: config.secret,
   bucket: config.bucket,
-  region: config.region
 })
 
 exports.client = s3
