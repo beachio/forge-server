@@ -25,10 +25,32 @@ const isFiles = (rules) => {
   }
 }
 
+const inWildcardPath = (rules, filename) => {
+  include = false;
+    for(let i = 0; i < rules.length; i++ ) {
+        if (rules[i].condition != 'Files')
+            continue
+        file_rules = rules[i].rules;
+        for(let j = 0; j < file_rules.length; j++){
+          wildcard_rule_path = '';
+          if (file_rules[j].name.slice(-1) == '*')
+            wildcard_rule_path = file_rules[j].name.substring(0, file_rules[j].name.length - 1)
+          if (wildcard_rule_path[0] != '/')
+            wildcard_rule_path = '/' + wildcard_rule_path
+          include = filename.includes(wildcard_rule_path);
+          if (include)
+            break;
+        }
+        if (include)
+          break;
+    }
+    return include;
+}
+
 const middleware = (req, res, next) => {
   let filename = req.context.path
   filesInConfig = isFiles(req.context.config)
-  
+
   if(typeof filesInConfig == 'undefined')
     filesInConfig = []
   if(filename.slice(-1) == '/') {
@@ -55,7 +77,7 @@ const middleware = (req, res, next) => {
   /*
    * For pages only! Serving them directly
    */
-  if (filesInConfig.indexOf(filename) != -1){
+  if (filesInConfig.indexOf(filename) != -1 || inWildcardPath(req.context.config, filename)){
     const token = req.context.token
     if(!token) return res.end()
     filepath = `${req.context.address}/${token}${filename}`
