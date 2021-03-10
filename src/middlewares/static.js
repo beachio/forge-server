@@ -32,14 +32,15 @@ const inWildcardPath = (rules, filename) => {
             continue
         file_rules = rules[i].rules;
         for(let j = 0; j < file_rules.length; j++){
-          wildcard_rule_path = '';
-          if (file_rules[j].name.slice(-1) == '*')
-            wildcard_rule_path = file_rules[j].name.substring(0, file_rules[j].name.length - 1)
-          if (wildcard_rule_path[0] != '/')
-            wildcard_rule_path = '/' + wildcard_rule_path
-          include = filename.includes(wildcard_rule_path);
-          if (include)
-            break;
+          if (file_rules[j].name.slice(-1) == '*') {
+            wildcard_rule_path = '';
+            wildcard_rule_path = file_rules[j].name.substring(0, file_rules[j].name.length - 1);
+            if (wildcard_rule_path[0] != '/')
+              wildcard_rule_path = '/' + wildcard_rule_path;
+            include = filename.includes(wildcard_rule_path);
+            if (include)
+              break;
+          }
         }
         if (include)
           break;
