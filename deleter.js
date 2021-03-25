@@ -153,7 +153,7 @@ const checkDeployed = () => {
 //Clear folder every 5 minutes
 const CLEAR_INTERVAL = 5000*60;
 
-const clearDir = function(dirPath, removeSelf) {
+const rmDir = function(dirPath, removeSelf) {
     if (removeSelf === undefined)
         removeSelf = true;
     try { var files = fs.readdirSync(dirPath); }
@@ -172,4 +172,4 @@ const clearDir = function(dirPath, removeSelf) {
 
 
 checkDeployed()
-setInterval(function() {clearDir(tmpDir)}, CLEAR_INTERVAL);
+setInterval(function() {rmDir(tmpDir)}, CLEAR_INTERVAL);
