@@ -7,7 +7,7 @@ const moment = require('moment')
 const touch  = require('touch')
 const mkdirp = require('mkdirp')
 
-const config = require('/var/deploy/config').config()
+const config = require('./config.js').config()
 
 // temp folder is used to cache site meta between deploys
 //   example.com/.forge-meta.json
