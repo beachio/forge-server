@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "forge-server": "node index.js",
+    "start": "concurrently \"node deleter.js\" \"node index.js\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "async": "^2.0.0-rc.4",
+    "concurrently": "^6.0.0",
     "express": "^4.13.4",
     "fs-promise": "^0.5.0",
     "fsp": "^0.1.2",
@@ -29,6 +31,6 @@
     "shipit-deploy": "^2.0.0"
   },
   "engines": {
-    "node": "8.10"
+    "node": "v11.10"
   }
 }

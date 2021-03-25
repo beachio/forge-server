@@ -150,5 +150,26 @@ const checkDeployed = () => {
   }
 
 }
+//Clear folder every 5 minutes
+const CLEAR_INTERVAL = 5000*60;
+
+const clearDir = function(dirPath, removeSelf) {
+    if (removeSelf === undefined)
+        removeSelf = true;
+    try { var files = fs.readdirSync(dirPath); }
+    catch(e) { return; }
+    if (files.length > 0)
+        for (var i = 0; i < files.length; i++) {
+            var filePath = dirPath + '/' + files[i];
+            if (fs.statSync(filePath).isFile())
+                fs.unlinkSync(filePath);
+            else
+                rmDir(filePath);
+        }
+    if (removeSelf)
+        fs.rmdirSync(dirPath);
+};
+
 
 checkDeployed()
+setInterval(function() {clearDir(tmpDir)}, CLEAR_INTERVAL);
