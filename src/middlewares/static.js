@@ -113,7 +113,6 @@ const middleware = (req, res, next) => {
     filepath = `${req.context.address}${filename}`
   }
   logger(`📥  Serving file from S3 ${filepath}`)
-  filepath = AWSencode('bird-6214.getforge.io/fr/à-notre-sujet/organismes-agrees/index.html');
   s3.get(filepath).on('response', (response) => {
     if (response.statusCode !== 200) {
       return next()
