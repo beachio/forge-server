@@ -49,7 +49,7 @@ const inWildcardPath = (rules, filename) => {
 }
 
 const middleware = (req, res, next) => {
-  let filename = req.context.path
+  let filename = decodeURI(req.context.path);
   filesInConfig = isFiles(req.context.config)
 
   if(typeof filesInConfig == 'undefined')
