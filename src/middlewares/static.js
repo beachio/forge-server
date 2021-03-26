@@ -112,6 +112,7 @@ const middleware = (req, res, next) => {
   } else{
     filepath = `${req.context.address}${filename}`
   }
+  filepath = AWSencode(filepath)
   logger(`📥  Serving file from S3 ${filepath}`)
   s3.get(filepath).on('response', (response) => {
     if (response.statusCode !== 200) {
