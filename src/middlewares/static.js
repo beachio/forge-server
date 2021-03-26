@@ -13,32 +13,7 @@ const isAsset = (url) => {
   return knownExts.indexOf(path.extname(url)) != -1
 }
 
-const AWSencode = (filename) => {
-    const encodings = {
-        '\+': "%2B",
-        '\!': "%21",
-        '\"': "%22",
-        '\#': "%23",
-        '\$': "%24",
-        '\&': "%26",
-        '\'': "%27",
-        '\(': "%28",
-        '\)': "%29",
-        '\*': "%2A",
-        '\,': "%2C",
-        '\:': "%3A",
-        '\;': "%3B",
-        '\=': "%3D",
-        '\?': "%3F",
-        '\@': "%40",
-        '\à': 'a%CC%80'
-    };
 
-    return filename.replace(
-        /([+!"#$&'()*+,:;=?@à])/img,
-        match => encodings[match]
-);
-}
 
 const isFiles = (rules) => {
   for(let i = 0; i < rules.length; i++ ) {
@@ -112,7 +87,6 @@ const middleware = (req, res, next) => {
   } else{
     filepath = `${req.context.address}${filename}`
   }
-  filepath = AWSencode(filepath)
   logger(`📥  Serving file from S3 ${filepath}`)
   s3.get(filepath).on('response', (response) => {
     if (response.statusCode !== 200) {
