@@ -13,6 +13,33 @@ const isAsset = (url) => {
   return knownExts.indexOf(path.extname(url)) != -1
 }
 
+const AWSencode = (filename) => {
+    const encodings = {
+        '\+': "%2B",
+        '\!': "%21",
+        '\"': "%22",
+        '\#': "%23",
+        '\$': "%24",
+        '\&': "%26",
+        '\'': "%27",
+        '\(': "%28",
+        '\)': "%29",
+        '\*': "%2A",
+        '\,': "%2C",
+        '\:': "%3A",
+        '\;': "%3B",
+        '\=': "%3D",
+        '\?': "%3F",
+        '\@': "%40",
+        '\à': 'a%CC%80'
+    };
+
+    return filename.replace(
+        /([+!"#$&'()*+,:;=?@à])/img,
+        match => encodings[match]
+);
+}
+
 const isFiles = (rules) => {
   for(let i = 0; i < rules.length; i++ ) {
     if (rules[i].condition != 'Files')
@@ -86,10 +113,8 @@ const middleware = (req, res, next) => {
     filepath = `${req.context.address}${filename}`
   }
   logger(`📥  Serving file from S3 ${filepath}`)
-
+  filepath = AWSencode('bird-6214.getforge.io/fr/à-notre-sujet/organismes-agrees/index.html');
   s3.get(filepath).on('response', (response) => {
-    console.log(response.statusCode);
-    console.log(response.body);
     if (response.statusCode !== 200) {
       return next()
     }
