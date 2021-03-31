@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "forge-server": "node index.js",
-    "start": "forever start index.js && forever start deleter.js"
+    "start": "forever start index.js && node start deleter.js"
   },
   "author": "",
   "license": "ISC",
