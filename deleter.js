@@ -44,7 +44,7 @@ logger(`😎  Last check was performed ${moment(lastCheckAt).format('MM.DD HH:mm
 const updateLastCheck = () => {
   lastCheckAt = new Date
   fs.writeFile(lastCheckedAtFile, lastCheckAt.toString(), (err) => {
-      if(err) return reject(err)
+      if(err) return err
   })
 }
 
@@ -74,7 +74,7 @@ const touchFile = (fname) => {
       if(err) return reject(err)
 
       fsp.writeFile(fname, 'w00t', (err) => {
-        if(err) return reject(err)
+        if(err) return err
       })
     })
   })
