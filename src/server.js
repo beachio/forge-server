@@ -4,6 +4,7 @@ const { config }  = require('./env')
 const logger      = require('./logger')
 
 let app = express()
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 app.use(require('./middlewares/common'))
 app.use(require('./middlewares/expired'))
