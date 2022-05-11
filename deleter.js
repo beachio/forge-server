@@ -8,6 +8,7 @@ const touch  = require('touch')
 const mkdirp = require('mkdirp')
 
 const config = require('./config.js').config()
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 // temp folder is used to cache site meta between deploys
 //   example.com/.forge-meta.json

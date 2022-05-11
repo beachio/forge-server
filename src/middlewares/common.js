@@ -46,7 +46,7 @@ const fetchMetaByApi = (address, done) => {
  */
 
 // the name of the file with site config
-const forgercName = '.forgerc'
+const forgercName = 'forgerc.txt'
 
 const fetchMetaOldWay = (address, done) => {
   getFileContent(`${address}/index.html`, (err, indexPage) => {
