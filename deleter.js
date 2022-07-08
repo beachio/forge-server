@@ -37,7 +37,7 @@ let lastCheckAt = null
 try {
   lastCheckAt = new Date( fs.readFileSync(lastCheckedAtFile, 'utf-8') )
 } catch(err) {
-  lastCheckAt = moment().subtract(1, 'days').toDate()
+  lastCheckAt = moment().toDate()
 }
 
 logger(`😎  Last check was performed ${moment(lastCheckAt).format('MM.DD HH:mm')}`)
