@@ -90,7 +90,7 @@ const loadSiteMeta = (address, done) => {
       let meta = {}
       try { meta = JSON.parse(metaContent) } catch(err) { success = false }
 
-      if(success) {
+      if(success && meta.configRaw.trim().length > 0) {
         logger(`✅  Meta for site loaded from ${metaFileLocation}`)
         return done(null, meta)
       }
@@ -122,7 +122,7 @@ const loadSiteMeta = (address, done) => {
 const commonMiddleware = (req, res, next) => {
   let address  = req.headers.host.split(":")[0]
   let path     = req.path
-  
+
   // Makes testing easier in development
   if ( process.env.NODE_ENV === 'development' && config.overwrite_address) {
     address = config.overwrite_address
