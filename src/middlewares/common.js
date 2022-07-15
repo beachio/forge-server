@@ -90,7 +90,7 @@ const loadSiteMeta = (address, done) => {
       let meta = {}
       try { meta = JSON.parse(metaContent) } catch(err) { success = false }
 
-      if(success && meta.configRaw.trim().length > 0) {
+      if(success && meta != null && meta.configRaw != null && meta.configRaw.trim().length > 0) {
         logger(`✅  Meta for site loaded from ${metaFileLocation}`)
         return done(null, meta)
       }
