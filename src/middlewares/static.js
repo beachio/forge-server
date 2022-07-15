@@ -95,10 +95,6 @@ const middleware = (req, res, next) => {
 
     statusCode = req.context.overwriteStatus || response.statusCode
 
-    res.writeHead(statusCode, {
-      'content-type': response.headers['content-type']
-    })
-
     response.on('data', chunk =>  {
       if (response.headers['content-encoding'] == 'gzip')
       {
@@ -113,6 +109,10 @@ const middleware = (req, res, next) => {
         res.write(chunk)
       }
     });
+
+    res.writeHead(statusCode, {
+        'content-type': response.headers['content-type']
+    })
 
     response.on('end', ()     => res.end())
   }).end()

@@ -8,6 +8,7 @@ const touch  = require('touch')
 const mkdirp = require('mkdirp')
 
 const config = require('/home/ec2-user/deploy/forge-server/config').config()
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 // temp folder is used to cache site meta between deploys
 //   example.com/.forge-meta.json
@@ -36,7 +37,7 @@ let lastCheckAt = null
 try {
   lastCheckAt = new Date( fs.readFileSync(lastCheckedAtFile, 'utf-8') )
 } catch(err) {
-  lastCheckAt = moment().subtract(1, 'days').toDate()
+  lastCheckAt = moment().toDate()
 }
 
 logger(`😎  Last check was performed ${moment(lastCheckAt).format('MM.DD HH:mm')}`)
