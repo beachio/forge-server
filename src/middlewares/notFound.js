@@ -38,7 +38,6 @@ module.exports = (req, res, next) => {
 
       res
         .set({ 'Content-Type': 'text/html' })
-        .status(404)
         .send(errorPageContent)
 
     }, '/404.html', 404)
