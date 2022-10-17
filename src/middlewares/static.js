@@ -87,34 +87,39 @@ const middleware = (req, res, next) => {
   }
   logger(`📥  Serving file from S3 ${filepath}`)
 
-  s3.get(filepath).on('response', (response) => {
-    if (response.statusCode !== 200) {
-      return next()
-    }
-
-    statusCode = req.context.overwriteStatus || response.statusCode
-
-    response.on('data', chunk =>  {
-      if (response.headers['content-encoding'] == 'gzip')
-      {
-        var text;
-        text =zlib.unzipSync(chunk, (err, chunk) => {
-          return chunk.toString()
-        });
-        res.write(text);
+  try {
+    s3.get(filepath).on('response', (response) => {
+      if (response.statusCode !== 200) {
+        return next()
       }
-      else
-      {
-        res.write(chunk)
-      }
-    });
 
-    res.writeHead(statusCode, {
+      statusCode = req.context.overwriteStatus || response.statusCode
+
+      response.on('data', chunk =>  {
+        if (response.headers['content-encoding'] == 'gzip')
+        {
+          var text;
+          text =zlib.unzipSync(chunk, (err, chunk) => {
+            return chunk.toString()
+          });
+          res.write(text);
+        }
+        else
+        {
+          res.write(chunk)
+        }
+      });
+
+      res.writeHead(statusCode, {
         'content-type': response.headers['content-type']
-    })
+      })
 
-    response.on('end', ()     => res.end())
-  }).end()
+      response.on('end', ()     => res.end())
+    }).end()
+  }
+  catch (err) {
+    console.log(err)
+  }
 }
 
 module.exports = middleware
