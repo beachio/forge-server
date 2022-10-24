@@ -78,7 +78,7 @@ const middleware = (req, res, next) => {
   /*
    * For pages only! Serving them directly
    */
-  if (filesInConfig.indexOf(filename) != -1 || inWildcardPath(req.context.config, filename)){
+  if (filesInConfig.indexOf(filename) != -1 || inWildcardPath(req.context.config, filename) || filename.endsWith('.json')){
     const token = req.context.token
     if(!token) return res.end()
     filepath = `${req.context.address}/${token}${filename}`
@@ -87,39 +87,34 @@ const middleware = (req, res, next) => {
   }
   logger(`📥  Serving file from S3 ${filepath}`)
 
-  try {
-    s3.get(filepath).on('response', (response) => {
-      if (response.statusCode !== 200) {
-        return next()
+  await s3.get(filepath).on('response', (response) => {
+    if (response.statusCode !== 200) {
+      return next()
+    }
+
+    statusCode = req.context.overwriteStatus || response.statusCode
+
+    response.on('data', chunk =>  {
+      if (response.headers['content-encoding'] == 'gzip')
+      {
+        var text;
+        text =zlib.unzipSync(chunk, (err, chunk) => {
+          return chunk.toString()
+        });
+        res.write(text);
       }
+      else
+      {
+        res.write(chunk)
+      }
+    });
 
-      statusCode = req.context.overwriteStatus || response.statusCode
+    res.writeHead(statusCode, {
+      'content-type': response.headers['content-type']
+    })
 
-      response.on('data', chunk =>  {
-        if (response.headers['content-encoding'] == 'gzip')
-        {
-          var text;
-          text =zlib.unzipSync(chunk, (err, chunk) => {
-            return chunk.toString()
-          });
-          res.write(text);
-        }
-        else
-        {
-          res.write(chunk)
-        }
-      });
-
-      res.writeHead(statusCode, {
-        'content-type': response.headers['content-type']
-      })
-
-      response.on('end', ()     => res.end())
-    }).end()
-  }
-  catch (err) {
-    console.log(err)
-  }
+    response.on('end', ()     =>  res.end())
+  }).end()
 }
 
 module.exports = middleware

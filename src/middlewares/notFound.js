@@ -35,9 +35,11 @@ const tryNotFoundRules = (req, res, next) => {
 module.exports = (req, res, next) => {
   tryNotFoundRules(req, res, () => {
     performRewrite(req, res, () => {
-
-      res
+      if (res.headersSent)
+        return res.status(404)
+      return res
         .set({ 'Content-Type': 'text/html' })
+        .status(404)
         .send(errorPageContent)
 
     }, '/404.html', 404)
