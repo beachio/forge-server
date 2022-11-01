@@ -87,7 +87,7 @@ const middleware = (req, res, next) => {
   }
   logger(`📥  Serving file from S3 ${filepath}`)
 
-  await s3.get(filepath).on('response', (response) => {
+  s3.get(filepath).on('response', (response) => {
     if (response.statusCode !== 200) {
       return next()
     }
