@@ -167,10 +167,11 @@ const rmDir = function(dirPath, removeSelf) {
             else
                 rmDir(filePath);
         }
-    if (removeSelf)
-        fs.rmdirSync(dirPath);
+    if (dirPath !== tmpDir && removeSelf)
+      fs.rmdirSync(dirPath);
 };
 
+var intervalTimer = null;
 
-checkDeployed()
+checkDeployed();
 setInterval(function() {rmDir(tmpDir)}, CLEAR_INTERVAL);
